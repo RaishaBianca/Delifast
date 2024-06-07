@@ -5,55 +5,72 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
-<body class="py-4 mx-16 bg-black text-white">
-    <header class="flex items-center justify-between">
-        <div class="flex">
-            <img src="/logo-delifast.png" alt="logo delifast" class="w-24">
-            <h1 class="text-center font-bold text-2xl p-8">Delifast</h1>
-        </div>
-        <div class="flex items-center">
-            <input type="text" placeholder="Search" class="p-2 rounded-l-lg">
-            <button class="bg-blue-500 p-2 rounded-r-lg">
-                <i class="fas fa-search"></i>
-            </button>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-gray-800 shadow-md py-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <img src="/logo-delifast.png" alt="Delifast logo" class="w-24">
+                <h1 class="text-3xl font-bold ml-4 text-white">Delifast</h1>
+            </div>
+            <div class="flex items-center">
+                <input type="text" placeholder="Search" class="p-2 rounded-l-lg border border-gray-300">
+                <button class="bg-blue-500 p-2 rounded-r-lg text-white">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
         </div>
     </header>
-    <div class="flex flex-wrap  gap-x-4">
-        <% data.forEach(item => { %>
-            <div class="flex-col py-8 w-64">
-                <img src="<%= item.image %>" alt="<%= item.title %>">
-                <h2 class="py-4 text-xl items-center justify-content-center">
-                    <a href="/recipes/<%= item.id %>"><%= item.title %></a>
-                </h2>
-            </div>
-        <% }) %>
-    </div>
-    <div id="pages">
-        <!-- dropdown of all pages -->
-        <select id="pageSelect" class="p-2 text-black">
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <option value="<%= i %>" <%= i === currentPage ? 'selected' : '' %>>Page <%= i %></option>
-            <% } %>
-        </select>
-        <% if (currentPage > 2) { %>
-            <a href="/page/1" class="p-2">1</a>
-            <% if (currentPage > 3) { %>
-                <span class="p-2">...</span>
-            <% } %>
-        <% } %>
-        <% if (currentPage > 1) { %>
-            <a href="/page/<%= currentPage-1 %>" class="p-2"><%= currentPage-1 %></a>
-        <% } %>
-        <a href="/page/<%= currentPage %>" class="p-2"><%= currentPage %></a>
-        <% if (currentPage < totalPages) { %>
-            <a href="/page/<%= currentPage+1 %>" class="p-2"><%= currentPage+1 %></a>
-            <% if (currentPage < totalPages - 1) { %>
-                <% if (currentPage < totalPages - 2) { %>
-                    <span class="p-2">...</span>
+    <main class="container mx-auto py-8">
+        <div class="flex flex-wrap gap-4 justify-center">
+            <% data.forEach(item => { %>
+                <div class="bg-white shadow-md rounded-lg overflow-hidden w-64">
+                    <img src="<%= item.image %>" alt="<%= item.title %>" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-2">
+                            <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
+                        </h2>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <div id="pages" class="mt-8 flex justify-center">
+            <select id="pageSelect" class="p-2 border border-gray-300 rounded text-black">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <option value="<%= i %>" <%= i === currentPage ? 'selected' : '' %>>Page <%= i %></option>
                 <% } %>
-                <a href="/page/<%= totalPages %>" class="p-2"><%= totalPages %></a>
-            <% } %>
-        <% } %>
-    </div>
+            </select>
+            <nav class="ml-4 flex items-center space-x-2">
+                <% if (currentPage > 2) { %>
+                    <a href="/page/1" class="p-2 border rounded">1</a>
+                    <% if (currentPage > 3) { %>
+                        <span class="p-2">...</span>
+                    <% } %>
+                <% } %>
+                <% if (currentPage > 1) { %>
+                    <a href="/page/<%= currentPage-1 %>" class="p-2 border rounded"><%= currentPage-1 %></a>
+                <% } %>
+                <a href="/page/<%= currentPage %>" class="p-2 border rounded bg-blue-500 text-white"><%= currentPage %></a>
+                <% if (currentPage < totalPages) { %>
+                    <a href="/page/<%= currentPage+1 %>" class="p-2 border rounded"><%= currentPage+1 %></a>
+                    <% if (currentPage < totalPages - 1) { %>
+                        <% if (currentPage < totalPages - 2) { %>
+                            <span class="p-2">...</span>
+                        <% } %>
+                        <a href="/page/<%= totalPages %>" class="p-2 border rounded"><%= totalPages %></a>
+                    <% } %>
+                <% } %>
+            </nav>
+        </div>
+    </main>
+    <footer class="bg-white shadow-md py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-600">&copy; 2024 Delifast. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+        document.getElementById('pageSelect').addEventListener('change', function() {
+            window.location.href = '/page/' + this.value;
+        });
+    </script>
 </body>
 </html>
