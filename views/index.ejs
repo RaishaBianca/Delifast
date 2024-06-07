@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body class="py-4 mx-16 bg-black text-white">
+    <header class="flex items-center justify-between">
+        <div class="flex">
+            <img src="/logo.jpg" alt="logo delifast" class="w-24">
+            <h1 class="text-center font-bold text-2xl p-8">Delifast</h1>
+        </div>
+        <div class="flex items-center">
+            <input type="text" placeholder="Search" class="p-2 rounded-l-lg">
+            <button class="bg-blue-500 p-2 rounded-r-lg">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </header>
+    <div class="flex flex-wrap  gap-x-4">
+        <% data.forEach(item => { %>
+            <div class="flex-col py-8 w-64">
+                <img src="<%= item.image %>" alt="<%= item.title %>">
+                <h2 class="py-4 text-xl items-center justify-content-center">
+                    <a href="/recipes/<%= item.id %>"><%= item.title %></a>
+                </h2>
+            </div>
+        <% }) %>
+    </div>
+    <div id="pages">
+        <!-- dropdown of all pages -->
+        <select id="pageSelect" class="p-2 text-black">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <option value="<%= i %>" <%= i === currentPage ? 'selected' : '' %>>Page <%= i %></option>
+            <% } %>
+        </select>
+        <% if (currentPage > 2) { %>
+            <a href="/page/1" class="p-2">1</a>
+            <% if (currentPage > 3) { %>
+                <span class="p-2">...</span>
+            <% } %>
+        <% } %>
+        <% if (currentPage > 1) { %>
+            <a href="/page/<%= currentPage-1 %>" class="p-2"><%= currentPage-1 %></a>
+        <% } %>
+        <a href="/page/<%= currentPage %>" class="p-2"><%= currentPage %></a>
+        <% if (currentPage < totalPages) { %>
+            <a href="/page/<%= currentPage+1 %>" class="p-2"><%= currentPage+1 %></a>
+            <% if (currentPage < totalPages - 1) { %>
+                <% if (currentPage < totalPages - 2) { %>
+                    <span class="p-2">...</span>
+                <% } %>
+                <a href="/page/<%= totalPages %>" class="p-2"><%= totalPages %></a>
+            <% } %>
+        <% } %>
+    </div>
+</body>
+</html>
