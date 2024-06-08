@@ -32,7 +32,7 @@
         <!-- dropdown of all pages -->
         <select id="pageSelect" class="p-2 text-black">
             <% for (let i = 1; i <= totalPages; i++) { %>
-                <option value="<%= i %>" <%= i === currentPage ? 'selected' : '' %>>Page <%= i %></option>
+                <a href="/page/<%=i %>"></a><option>Page <%= i %></option></a>
             <% } %>
         </select>
         <% if (currentPage > 2) { %>

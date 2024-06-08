@@ -8,7 +8,7 @@ app.set('view engine', 'ejs');
 const api = axios.create({
   baseURL: 'https://api.spoonacular.com/recipes',
   params: {
-    apiKey: 'b801bf82493545529f9df9d127c0c7e8',
+    apiKey: '188e1dbc267d4553b979e4189fba3bbd',
   },
 });
 
