@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= query %></title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main class="container px-10">
+        <div id="search-result" class="flex flex-col md:flex-row justify-between items-start md:items-center">
+            <h1 class="my-4">Search for : <span class="font-bold text-lg"><%= query %></span></h1>
+        </div>
+        <div id="recipeResult" class="flex flex-wrap">
+            <% data.forEach(recipe => { %>
+                <div class="w-1/4 p-4">
+                    <div class="bg-white shadow-md rounded-lg">
+                        <img src="<%= recipe.image %>" alt="<%= recipe.title %>" class="w-full h-32 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
+                        <div class="p-4">
+                            <h2 class="font-bold text-lg"><%= recipe.title %></h2>
+                            <a href="/recipes/<%= recipe.id %>" class="bg-blue-500 text-white p-2 block rounded-lg mt-4 hover:opacity-50">View Recipe</a>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <button id="loadMore" class="bg-green-500 text-white p-2 px-8 rounded-lg mt-4 flex mx-auto justify-center text-center my-4 w-1/2 hover:bg-green-700">Load More</button>
+    </main>
+    <script>
+        let offset = 0;
+        const query = '<%= query %>';
+      
+        document.getElementById('loadMore').addEventListener('click', async function() {
+          offset += 12;
+          const response = await fetch(`/search?query=${query}&offset=${offset}`);
+          const newResults = await response.json();
+          newResults.forEach(recipe => {
+            const recipeElement = `
+              <div class="w-1/4 p-4">
+                <div class="bg-white shadow-md rounded-lg">
+                  <img src="${recipe.image}" alt="${recipe.title}" class="w-full h-32 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
+                  <div class="p-4">
+                    <h2 class="font-bold text-lg">${recipe.title}</h2>
+                    <a href="/recipe/${recipe.id}" class="bg-blue-500 text-white p-2 block rounded-lg mt-4">View Recipe</a>
+                  </div>
+                </div>
+              </div>
+            `;
+      
+            document.getElementById('recipeResult').innerHTML += recipeElement;
+          });
+        });
+      </script>
+</body>
+</html>

@@ -1,59 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Data</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delifast</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
-<body class="py-4 mx-16 bg-black text-white">
-    <header class="flex items-center justify-between">
-        <div class="flex">
-            <img src="/logo.jpg" alt="logo delifast" class="w-24">
-            <h1 class="text-center font-bold text-2xl p-8">Delifast</h1>
+<body class="bg-gray-100 text-gray-800">
+    <%- include('partials/header') %>
+    <main class="container mx-auto py-8">
+        <div class="flex flex-wrap gap-4 justify-center">
+            <% data.forEach(item => { %>
+                <div class="bg-white shadow-md rounded-lg overflow-hidden w-64">
+                    <img src="<%= item.image %>" alt="<%= item.title %>" class="w-full h-40 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold mb-2">
+                            <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
+                        </h2>
+                    </div>
+                </div>
+            <% }) %>
         </div>
-        <div class="flex items-center">
-            <input type="text" placeholder="Search" class="p-2 rounded-l-lg">
-            <button class="bg-blue-500 p-2 rounded-r-lg">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </header>
-    <div class="flex flex-wrap  gap-x-4">
-        <% data.forEach(item => { %>
-            <div class="flex-col py-8 w-64">
-                <img src="<%= item.image %>" alt="<%= item.title %>">
-                <h2 class="py-4 text-xl items-center justify-content-center">
-                    <a href="/recipes/<%= item.id %>"><%= item.title %></a>
-                </h2>
-            </div>
-        <% }) %>
-    </div>
-    <div id="pages">
-        <!-- dropdown of all pages -->
-        <select id="pageSelect" class="p-2 text-black">
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <a href="/page/<%=i %>"></a><option>Page <%= i %></option></a>
-            <% } %>
-        </select>
-        <% if (currentPage > 2) { %>
-            <a href="/page/1" class="p-2">1</a>
-            <% if (currentPage > 3) { %>
-                <span class="p-2">...</span>
-            <% } %>
-        <% } %>
-        <% if (currentPage > 1) { %>
-            <a href="/page/<%= currentPage-1 %>" class="p-2"><%= currentPage-1 %></a>
-        <% } %>
-        <a href="/page/<%= currentPage %>" class="p-2"><%= currentPage %></a>
-        <% if (currentPage < totalPages) { %>
-            <a href="/page/<%= currentPage+1 %>" class="p-2"><%= currentPage+1 %></a>
-            <% if (currentPage < totalPages - 1) { %>
-                <% if (currentPage < totalPages - 2) { %>
-                    <span class="p-2">...</span>
+        <div id="pages" class="mt-8 flex justify-center">
+            <select id="pageSelect" class="p-2 border border-gray-300 rounded text-black">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="/page/<%=i %>"></a><option>Page <%= i %></option></a>
                 <% } %>
-                <a href="/page/<%= totalPages %>" class="p-2"><%= totalPages %></a>
-            <% } %>
-        <% } %>
-    </div>
+            </select>
+            <nav class="ml-4 flex items-center space-x-2">
+                <% if (currentPage > 2) { %>
+                    <a href="/page/1" class="p-2 border rounded">1</a>
+                    <% if (currentPage > 3) { %>
+                        <span class="p-2">...</span>
+                    <% } %>
+                <% } %>
+                <% if (currentPage > 1) { %>
+                    <a href="/page/<%= currentPage-1 %>" class="p-2 border rounded"><%= currentPage-1 %></a>
+                <% } %>
+                <a href="/page/<%= currentPage %>" class="p-2 border rounded bg-blue-500 text-white"><%= currentPage %></a>
+                <% if (currentPage < totalPages) { %>
+                    <a href="/page/<%= currentPage+1 %>" class="p-2 border rounded"><%= currentPage+1 %></a>
+                    <% if (currentPage < totalPages - 1) { %>
+                        <% if (currentPage < totalPages - 2) { %>
+                            <span class="p-2">...</span>
+                        <% } %>
+                        <a href="/page/<%= totalPages %>" class="p-2 border rounded"><%= totalPages %></a>
+                    <% } %>
+                <% } %>
+            </nav>
+        </div>
+    </main>
+    <%- include('partials/footer') %>
+    <script>
+        document.getElementById('pageSelect').addEventListener('change', function() {
+            window.location.href = '/page/' + this.value;
+        });
+    </script>
 </body>
 </html>

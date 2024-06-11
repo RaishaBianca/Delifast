@@ -21,13 +21,14 @@ app.get('/', async (req, res) => {
         number: limit,
       },
     }); 
-   res.render('index', { data: response.data.results, totalPages: Math.ceil(response.data.totalResults / limit), currentPage : 1 });
+   res.render('index', { data: response.data.results, totalPages: 76, currentPage : 1 });
     } catch (error) {
         console.error(error);
         res.status(500).send('An error occurred');
     }
     });
 
+//show per page
 app.get('/page/:page', async (req, res) => {
     try {
         const page = parseInt(req.params.page) || 1;
@@ -41,13 +42,32 @@ app.get('/page/:page', async (req, res) => {
         },
         });
     
-        res.render('index', { data: response.data.results, totalPages: Math.ceil(response.data.totalResults / limit), currentPage : page });
+        res.render('index', { data: response.data.results, totalPages: 76, currentPage : page });
     } catch (error) {
         console.error(error);
         res.status(500).send('An error occurred');
     }
 });
 
+//search for recipes
+app.get('/search', async (req, res) => {
+  const query = req.query.query;
+  const offset = req.query.offset || 0;
+  const response = await api.get('/complexSearch', {
+    params: {
+      query: query,
+      number: 12,
+      offset: offset,
+    },
+  });
+  if(offset==0){
+    res.render('search', { data: response.data.results, query: query });
+  }
+  else {
+    //send json
+    res.json(response.data.results);
+  }
+});
 
 //get information for specific recipes 
 app.get('/recipes/:id', async (req, res) => {
