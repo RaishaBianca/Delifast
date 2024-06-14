@@ -77,5 +77,9 @@ app.get('/recipes/:id', async (req, res) => {
   res.render('recipe', { recipe });
 });
 
+app.get('/profile', (req, res) => {
+  res.render('profile');
+});
+
 app.listen(3000);
 app.use(express.static('public'));

@@ -14,10 +14,11 @@
             <% data.forEach(item => { %>
                 <div class="bg-white shadow-md rounded-lg overflow-hidden w-64">
                     <img src="<%= item.image %>" alt="<%= item.title %>" class="w-full h-40 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
-                    <div class="p-4">
+                    <div class="p-4 flex justify-between items-start gap-2">
                         <h2 class="text-xl font-semibold mb-2">
                             <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
                         </h2>
+                        <%- include('partials/like') %>
                     </div>
                 </div>
             <% }) %>

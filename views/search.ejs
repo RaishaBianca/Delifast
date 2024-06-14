@@ -19,7 +19,10 @@
                     <div class="bg-white shadow-md rounded-lg">
                         <img src="<%= recipe.image %>" alt="<%= recipe.title %>" class="w-full h-32 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
                         <div class="p-4">
-                            <h2 class="font-bold text-lg"><%= recipe.title %></h2>
+                            <div class="flex justify-between items-start gap-2">
+                              <h2 class="font-bold text-lg text-start"><%= recipe.title %></h2>
+                              <%- include('partials/like') %>
+                            </div>
                             <a href="/recipes/<%= recipe.id %>" class="bg-blue-500 text-white p-2 block rounded-lg mt-4 hover:opacity-50">View Recipe</a>
                         </div>
                     </div>
