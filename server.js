@@ -81,5 +81,14 @@ app.get('/profile', (req, res) => {
   res.render('profile');
 });
 
+app.get('/login',(req,res)=>{
+  res.render('login');
+});
+
+app.get('/register',(req,res)=>{
+  res.render('sign-up');
+});
+
 app.listen(3000);
+
 app.use(express.static('public'));
