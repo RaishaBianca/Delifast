@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon server.js",
+    "start": "nodemon route/server.js",
+    "start:userService": "nodemon services/userService.js",
     "browserSync": "browser-sync start --proxy localhost:3000 --files '**/*.ejs, **/*.js'"
   },
   "keywords": [],
@@ -12,8 +13,13 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mysql2": "^3.10.1",
+    "sequelize": "^6.37.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.3"
