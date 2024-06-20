@@ -54,6 +54,25 @@
     </main>
     <%- include('partials/footer') %>
     <script>
+        const favoritesId = JSON.parse("<%- JSON.stringify(favoritesId) %>");
+        console.log(favoritesId);
+    
+        document.querySelectorAll('.hover-heart').forEach(heartElement => {
+            const id = Number(heartElement.id.replace('recipe-', ''));
+            const farIcon = heartElement.querySelector('.far');
+            const fasIcon = heartElement.querySelector('.fas');
+    
+            if (favoritesId.includes(id)) {
+                console.log('recipe is in favorites');
+                farIcon.style.display = 'none';
+                fasIcon.style.display = 'inline';
+            } else {
+                farIcon.style.display = 'inline';
+                fasIcon.style.display = 'none';
+            }
+        });
+    </script>
+    <script>
         document.getElementById('pageSelect').addEventListener('change', function() {
             window.location.href = '/page/' + this.value;
         });

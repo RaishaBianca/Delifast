@@ -94,7 +94,11 @@ app.get('/', async (req, res) => {
         number: limit,
       },
     }); 
-   res.render('index', { data: response.data.results, totalPages: 76, currentPage : 1 });
+    let favorites;
+if (req.session.user) {
+  favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+}
+   res.render('index', { data: response.data.results, totalPages: 76, currentPage : 1, favoritesId: favorites ? favorites.data : []});
     } catch (error) {
         console.error(error);
         res.status(500).send('An error occurred');

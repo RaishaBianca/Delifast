@@ -72,6 +72,23 @@ app.post('/favorites', async (req, res) => {
     }
   });
 
+app.post('/user_favorites', async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const favorites = await Favorite.findAll({
+      where: {
+        userId
+      }
+    });
+    const recipeIds = favorites.map(favorite => favorite.recipeId);
+    res.json(recipeIds);
+  }
+  catch (error) {
+    console.error('Error fetching favorites:', error);
+    res.status(500).json({ error: 'Failed to retrieve favorites from database' });
+  }
+})
+
 sequelize
     .sync({ force: false }) 
     .then(() => {
@@ -86,4 +103,3 @@ sequelize
 
 
 
-    
