@@ -5,13 +5,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const secretKey = process.env.SECRET_KEY;
-
-app.set('view engine', 'ejs');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-
-// Create an axios instance
 const api = axios.create({
   baseURL: 'https://api.spoonacular.com/recipes',
   params: {
@@ -19,6 +12,9 @@ const api = axios.create({
   },
 });
 
+app.set('view engine', 'ejs');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
   secret: secretKey,
   resave: false,
@@ -28,13 +24,16 @@ app.use(session({
      maxAge: 12 * 60 * 60 * 1000,
    }
 }));
+app.use((req,res,next) => {
+  res.locals.user = req.session.user;
+  next();
+});
 
 // Create an axios instance for the user service
 const userService = axios.create({
   baseURL: 'http://localhost:4000',
 });
 
-// Route to get all users
 app.post('/user_login', async (req, res) => {
   try {
     const response = await userService.post('/user_login', req.body);
@@ -42,21 +41,36 @@ app.post('/user_login', async (req, res) => {
     res.render('profile', { user: req.session.user});
   } catch (error) {
     console.error(error);
-    res.status(500).send('server : An error occurred');
+    if(error.response.status === 404){
+      res.render('login', { error: error.response.data.error, email: req.body.email});
+    } else {
+      res.status(500).send(error.response.data.error);
+    }
   }
 });
 
-// Route to create a new user
-app.post('/users', async (req, res) => {
+app.post('/user_register', async (req, res) => {
   try {
-    const response = await userService.post('/users', req.body);
-    res.json(response.data);
+    const response = await userService.post('/user_register', req.body);
+    req.session.user = response.data;
+    res.render('profile', { user: req.session.user});
   } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred');
+    if(error.response.status === 404){
+      res.render('sign-up', { error: error.response.data.error, username: req.body.username, email: req.body.email});
+    } else {
+      res.status(500).send(error.response.data.error);
+    }
   }
 });
 
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if(err) {
+      return console.log(err);
+    }
+    res.redirect('/');
+  });
+});
 
 //show all recipes
 app.get('/', async (req, res) => {
