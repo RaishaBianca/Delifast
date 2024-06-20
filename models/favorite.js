@@ -1,7 +1,7 @@
 // favorite.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const User = require('./user'); // Corrected path
+const User = require('./user'); 
 
 const Favorite = sequelize.define('Favorite', {
   userId: {
@@ -16,6 +16,8 @@ const Favorite = sequelize.define('Favorite', {
     type: DataTypes.INTEGER,
     allowNull: false
   }
+}, {
+  timestamps: false
 });
 
 module.exports = Favorite;

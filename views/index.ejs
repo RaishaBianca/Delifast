@@ -18,7 +18,7 @@
                         <h2 class="text-xl font-semibold mb-2">
                             <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
                         </h2>
-                        <%- include('partials/like') %>
+                        <%- include('partials/like', {recipe: item}) %>
                     </div>
                 </div>
             <% }) %>
@@ -56,6 +56,53 @@
     <script>
         document.getElementById('pageSelect').addEventListener('change', function() {
             window.location.href = '/page/' + this.value;
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.hover-heart').forEach(button => {
+            console.log('button clicked');
+        
+            // Define your event handler as a named function
+            const eventHandler = function(event) {
+                event.preventDefault();
+                event.stopPropagation(); 
+                console.log('button clicked2');
+                const recipeId = this.dataset.recipeId;
+                console.log(recipeId);
+                const farIcon = this.querySelector('.far');
+                const fasIcon = this.querySelector('.fas');
+        
+                console.log(farIcon, fasIcon)
+
+                fetch('/favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ recipeId }),
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.data.success) {
+                        //console log
+                        console.log('success');
+                        // Change the heart to a filled heart
+                        farIcon.style.display = 'none';
+                        fasIcon.style.display = 'inline';
+                    } else {
+                        // Change the heart to an outline heart
+                        farIcon.style.display = 'inline';
+                        fasIcon.style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        
+            // Remove the event listener before adding it
+            button.removeEventListener('click', eventHandler);
+            button.addEventListener('click', eventHandler);
         });
     </script>
 </body>

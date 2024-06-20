@@ -72,7 +72,20 @@ app.get('/logout', (req, res) => {
   });
 });
 
-//show all recipes
+app.post('/favorites', async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const response = await userService.post('/favorites', { ...req.body, userId });
+    res.json({ message: 'favorites', userId: userId, data: response.data });
+  } catch (error) {
+    if (error.response) {
+      res.status(500).send(error.response.data.error);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+});
+
 app.get('/', async (req, res) => {
   try {
     const limit = 12;
@@ -86,7 +99,7 @@ app.get('/', async (req, res) => {
         console.error(error);
         res.status(500).send('An error occurred');
     }
-    });
+  });
 
 //show per page
 app.get('/page/:page', async (req, res) => {
@@ -152,3 +165,4 @@ app.get('/register',(req,res)=>{
 app.listen(3000);
 
 app.use(express.static('public'));
+

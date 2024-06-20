@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sequelize = require('../config/database');
 const User = require('../models/user');
+const Favorite = require('../models/favorite');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const app = express();
@@ -60,6 +61,17 @@ app.post('/user_register', async (req, res) => {
     }
 });
 
+app.post('/favorites', async (req, res) => {
+    try {
+      const { userId, recipeId } = req.body;
+      const newFavorite = await Favorite.create({ userId, recipeId });
+      res.json({ success: true, favorite: newFavorite });
+    } catch (error) {
+      console.error('Error creating favorite:', error);
+      res.status(500).json({ error: 'Failed to add favorite' });
+    }
+  });
+
 sequelize
     .sync({ force: false }) 
     .then(() => {
@@ -72,3 +84,6 @@ sequelize
         console.error('Unable to sync database:', error);
     });
 
+
+
+    
