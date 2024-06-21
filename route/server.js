@@ -5,10 +5,11 @@ const app = express();
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const secretKey = process.env.SECRET_KEY;
+const recommend = require('../services/recommendationService');
 const api = axios.create({
   baseURL: 'https://api.spoonacular.com/recipes',
   params: {
-    apiKey: '188e1dbc267d4553b979e4189fba3bbd',
+    apiKey: '1e54f19280ac46e8b6bad1caeeb656f1',
   },
 });
 
@@ -38,7 +39,18 @@ app.post('/user_login', async (req, res) => {
   try {
     const response = await userService.post('/user_login', req.body);
     req.session.user = response.data;
-    res.render('profile', { user: req.session.user});
+    let favorites;
+    if (req.session.user) {
+      favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+    }
+  
+    const favoriteRecipes = await api.get('/informationBulk', {
+      params: {
+       ids: favorites ? Array.from(new Set(favorites.data)).join(',') : '',
+      },
+    });
+  
+    res.render('profile',{ user: req.session.user, favorites: favoriteRecipes.data });
   } catch (error) {
     console.error(error);
     if(error.response.status === 404){
@@ -76,7 +88,23 @@ app.post('/favorites', async (req, res) => {
   try {
     const userId = req.session.user.id;
     const response = await userService.post('/favorites', { ...req.body, userId });
+    
     res.json({ message: 'favorites', userId: userId, data: response.data });
+  } catch (error) {
+    if (error.response) {
+      res.status(500).send(error.response.data.error);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+});
+
+app.post('/deleteFavorite', async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const response = await userService.delete('/Favorite', { ...req.body, userId });
+    
+    res.json({ success: true});
   } catch (error) {
     if (error.response) {
       res.status(500).send(error.response.data.error);
@@ -119,7 +147,12 @@ app.get('/page/:page', async (req, res) => {
         },
         });
     
-        res.render('index', { data: response.data.results, totalPages: 76, currentPage : page });
+        let favorites;
+        if (req.session.user) {
+          favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+        }
+
+        res.render('index', { data: response.data.results, totalPages: 76, currentPage : page, favoritesId: favorites ? favorites.data : [] });
     } catch (error) {
         console.error(error);
         res.status(500).send('An error occurred');
@@ -130,6 +163,7 @@ app.get('/page/:page', async (req, res) => {
 app.get('/search', async (req, res) => {
   const query = req.query.query;
   const offset = req.query.offset || 0;
+  let favorites; 
   const response = await api.get('/complexSearch', {
     params: {
       query: query,
@@ -137,8 +171,11 @@ app.get('/search', async (req, res) => {
       offset: offset,
     },
   });
+  if (req.session.user) {
+    favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+  }
   if(offset==0){
-    res.render('search', { data: response.data.results, query: query });
+    res.render('search', { data: response.data.results, query: query, favoritesId: favorites ? favorites.data : [] });
   }
   else {
     //send json
@@ -154,9 +191,39 @@ app.get('/recipes/:id', async (req, res) => {
   res.render('recipe', { recipe });
 });
 
-app.get('/profile', (req, res) => {
-  res.render('profile');
+async function updateRecommendations(userId, favorites) {
+  const recommendations = await recommend(userId ,favorites);
+  if (recommendations.error) {
+    setTimeout(() => updateRecommendations(userId, favorites), 24 * 60 * 60 * 1000);
+    return;
+  }
+  return recommendations;
+}
+
+setInterval(async () => { // Add async keyword
+  const users = await User.findAll();
+  for (const user of users) {
+      await updateRecommendations(user.id); // Add await keyword
+  }
+}, 24 * 60 * 60 * 1000); 
+
+app.get('/profile', async (req, res) => {
+  let favorites;
+  if (req.session.user) {
+    favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+  }
+
+  const favoriteRecipes = await api.get('/informationBulk', {
+    params: {
+     ids: favorites ? Array.from(new Set(favorites.data)).join(',') : '',
+    },
+  });
+
+  const recommendations = await updateRecommendations(req.session.user.id, favoriteRecipes.data);
+
+  res.render('profile',{favorites: favoriteRecipes.data, recommendations });
 });
+
 
 app.get('/login',(req,res)=>{
   res.render('login');
@@ -169,4 +236,16 @@ app.get('/register',(req,res)=>{
 app.listen(3000);
 
 app.use(express.static('public'));
+
+
+
+
+
+
+
+
+
+
+
+
 

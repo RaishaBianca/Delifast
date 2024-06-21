@@ -62,15 +62,19 @@ app.post('/user_register', async (req, res) => {
 });
 
 app.post('/favorites', async (req, res) => {
-    try {
-      const { userId, recipeId } = req.body;
-      const newFavorite = await Favorite.create({ userId, recipeId });
-      res.json({ success: true, favorite: newFavorite });
-    } catch (error) {
-      console.error('Error creating favorite:', error);
-      res.status(500).json({ error: 'Failed to add favorite' });
+    const {userId, recipeId} = req.body;
+    // Check if the favorite already exists
+    const existingFavorite = await Favorite.findOne({ where: { userId: userId ,recipeId: recipeId } });
+    if (existingFavorite) {
+        await Favorite.destroy({ where: {userId: userId ,recipeId: recipeId } });
+        res.status(200).json({success: false, existingFavorite: existingFavorite });
+    } else {
+        // If the favorite does not exist, add it to the database
+        const newFavorite = new Favorite({ userId: userId ,recipeId: recipeId  });
+        await newFavorite.save();
+        res.status(200).json({success: true, existingFavorite: existingFavorite});
     }
-  });
+});
 
 app.post('/user_favorites', async (req, res) => {
   try {
@@ -87,7 +91,7 @@ app.post('/user_favorites', async (req, res) => {
     console.error('Error fetching favorites:', error);
     res.status(500).json({ error: 'Failed to retrieve favorites from database' });
   }
-})
+});
 
 sequelize
     .sync({ force: false }) 

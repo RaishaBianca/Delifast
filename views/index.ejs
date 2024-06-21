@@ -18,7 +18,9 @@
                         <h2 class="text-xl font-semibold mb-2">
                             <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
                         </h2>
-                        <%- include('partials/like', {recipe: item}) %>
+                        <% if (locals.user) { %>
+                            <%- include('partials/like', {recipe: item}) %>
+                        <% } %>
                     </div>
                 </div>
             <% }) %>
@@ -56,7 +58,6 @@
     <script>
         const favoritesId = JSON.parse("<%- JSON.stringify(favoritesId) %>");
         console.log(favoritesId);
-    
         document.querySelectorAll('.hover-heart').forEach(heartElement => {
             const id = Number(heartElement.id.replace('recipe-', ''));
             const farIcon = heartElement.querySelector('.far');
@@ -102,14 +103,13 @@
                 })
                 .then(response => response.json())
                 .then(response => {
+                    console.log(response.existingFavorite);
+                    console.log(response);
                     if (response.data.success) {
-                        //console log
                         console.log('success');
-                        // Change the heart to a filled heart
                         farIcon.style.display = 'none';
                         fasIcon.style.display = 'inline';
                     } else {
-                        // Change the heart to an outline heart
                         farIcon.style.display = 'inline';
                         fasIcon.style.display = 'none';
                     }

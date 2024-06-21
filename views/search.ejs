@@ -20,8 +20,12 @@
                         <img src="<%= recipe.image %>" alt="<%= recipe.title %>" class="w-full h-32 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
                         <div class="p-4">
                             <div class="flex justify-between items-start gap-2">
-                              <h2 class="font-bold text-lg text-start"><%= recipe.title %></h2>
-                              <%- include('partials/like') %>
+                              <a href="/recipes/<%= recipe.id %>">
+                                <h2 class="font-bold text-lg text-start hover:text-blue-500"><%= recipe.title %></h2>
+                              </a>
+                              <% if (locals.user) { %>
+                                  <%- include('partials/like', {recipe: recipe}) %>
+                              <% } %>
                             </div>
                             <a href="/recipes/<%= recipe.id %>" class="bg-blue-500 text-white p-2 block rounded-lg mt-4 hover:opacity-50">View Recipe</a>
                         </div>
@@ -31,6 +35,72 @@
         </div>
         <button id="loadMore" class="bg-green-500 text-white p-2 px-8 rounded-lg mt-4 flex mx-auto justify-center text-center my-4 w-1/2 hover:bg-green-700">Load More</button>
     </main>
+    <script>
+      const favoritesId = JSON.parse("<%- JSON.stringify(favoritesId) %>");
+      console.log(favoritesId);
+  
+      document.querySelectorAll('.hover-heart').forEach(heartElement => {
+          const id = Number(heartElement.id.replace('recipe-', ''));
+          const farIcon = heartElement.querySelector('.far');
+          const fasIcon = heartElement.querySelector('.fas');
+  
+          if (favoritesId.includes(id)) {
+              console.log('recipe is in favorites');
+              farIcon.style.display = 'none';
+              fasIcon.style.display = 'inline';
+          } else {
+              farIcon.style.display = 'inline';
+              fasIcon.style.display = 'none';
+          }
+      });
+  </script>
+  <script>
+    document.querySelectorAll('.hover-heart').forEach(button => {
+        console.log('button clicked');
+    
+        // Define your event handler as a named function
+        const eventHandler = function(event) {
+            event.preventDefault();
+            event.stopPropagation(); 
+            console.log('button clicked2');
+            const recipeId = this.dataset.recipeId;
+            console.log(recipeId);
+            const farIcon = this.querySelector('.far');
+            const fasIcon = this.querySelector('.fas');
+    
+            console.log(farIcon, fasIcon)
+
+            fetch('/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ recipeId }),
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.data.success) {
+                    //console log
+                    console.log('success');
+                    // Change the heart to a filled heart
+                    farIcon.style.display = 'none';
+                    fasIcon.style.display = 'inline';
+                } else {
+                    // Change the heart to an outline heart
+                    farIcon.style.display = 'inline';
+                    fasIcon.style.display = 'none';
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    
+        // Remove the event listener before adding it
+        button.removeEventListener('click', eventHandler);
+        button.addEventListener('click', eventHandler);
+    });
+</script>
     <script>
         let offset = 0;
         const query = '<%= query %>';
