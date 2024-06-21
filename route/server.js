@@ -2,14 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
+const { user_rec, recommend } = require('../services/recommendationService');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const secretKey = process.env.SECRET_KEY;
-const recommend = require('../services/recommendationService');
 const api = axios.create({
   baseURL: 'https://api.spoonacular.com/recipes',
   params: {
-    apiKey: '1e54f19280ac46e8b6bad1caeeb656f1',
+    apiKey: 'ad9e72a6509942e7a37d224ecc08d97f',
   },
 });
 
@@ -123,10 +123,14 @@ app.get('/', async (req, res) => {
       },
     }); 
     let favorites;
-if (req.session.user) {
-  favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
-}
-   res.render('index', { data: response.data.results, totalPages: 76, currentPage : 1, favoritesId: favorites ? favorites.data : []});
+    let user_recommendation;
+    if (req.session.user) {
+      favorites = await userService.post('/user_favorites', { userId: req.session.user.id });
+      user_recommendation = await user_rec(req.session.user.id);
+    }
+  
+   res.render('index', { data: response.data.results, totalPages: 76, currentPage : 1, favoritesId: favorites ? favorites.data : [], rec : user_recommendation ? user_recommendation.data : []});
+
     } catch (error) {
         console.error(error);
         res.status(500).send('An error occurred');
@@ -236,6 +240,7 @@ app.get('/register',(req,res)=>{
 app.listen(3000);
 
 app.use(express.static('public'));
+
 
 
 

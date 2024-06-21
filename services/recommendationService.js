@@ -2,9 +2,10 @@
 const axios = require('axios');
 const Recommendation = require('../models/recommendation');
 
-const user_recommendation = async (userId) => {
+const user_rec = async (userId) => {
     const userRec = await Recommendation.findAll({ where: { userId } });
-    return userRec;
+    const response = await axios.get(`https://api.spoonacular.com/recipes/informationBulk?ids=${userRec.map(rec => rec.recipeId).join(',')}&apiKey=ad9e72a6509942e7a37d224ecc08d97f`);
+    return response;
 };
 
 const recommend = async (userId ,favorites) => {
@@ -28,7 +29,7 @@ const recommend = async (userId ,favorites) => {
     const mostCommonDiet = Object.keys(diets).length ? Object.keys(diets).reduce((a, b) => diets[a] > diets[b] ? a : b) : '';
     const mostCommonDishType = Object.keys(dishTypes).length ? Object.keys(dishTypes).reduce((a, b) => dishTypes[a] > dishTypes[b] ? a : b) : '';
 
-    const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?cuisine=${mostCommonCuisine}&diet=${mostCommonDiet}&type=${mostCommonDishType}&number=3&apiKey=1e54f19280ac46e8b6bad1caeeb656f1`);
+    const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?cuisine=${mostCommonCuisine}&diet=${mostCommonDiet}&type=${mostCommonDishType}&number=3&apiKey=ad9e72a6509942e7a37d224ecc08d97f`);
     
     const recommendations = response.data.results;
 
@@ -40,4 +41,4 @@ const recommend = async (userId ,favorites) => {
     return recommendations;
 };
 
-module.exports = recommend;
+module.exports = {user_rec, recommend};

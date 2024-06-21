@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delifast</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-800">
     <%- include('partials/header') %>
     <main class="container mx-auto py-8">
+        <% if (locals.user) { %>
+            <h2 class="text-2xl font-bold mb-4 px-8">For You</h2>
+            <div class="owl-carousel owl-theme mb-16 px-16">
+                <% rec.forEach(item => { %>
+                    <div class="item bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-200 bg-transparent">
+                        <h2 class="text-xl font-semibold mb-2 p-4">
+                            <a href="/recipes/<%= item.id %>" class="hover:text-blue-500"><%= item.title %></a>
+                        </h2>
+                        <img src="<%= item.image %>" alt="<%= item.title %>" class="w-full h-40 object-cover" onerror="this.onerror=null; this.src='default.jpg';">
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
+        <h2 class="text-2xl font-bold mb-4 px-8">Recipe Catalogue</h2>
         <div class="flex flex-wrap gap-4 justify-center">
             <% data.forEach(item => { %>
                 <div class="bg-white shadow-md rounded-lg overflow-hidden w-64">
@@ -57,7 +73,6 @@
     <%- include('partials/footer') %>
     <script>
         const favoritesId = JSON.parse("<%- JSON.stringify(favoritesId) %>");
-        console.log(favoritesId);
         document.querySelectorAll('.hover-heart').forEach(heartElement => {
             const id = Number(heartElement.id.replace('recipe-', ''));
             const farIcon = heartElement.querySelector('.far');
@@ -124,5 +139,19 @@
             button.addEventListener('click', eventHandler);
         });
     </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+        <script>
+        $(document).ready(function(){
+            $(".owl-carousel").owlCarousel({
+                items: 3,
+                loop: true,
+                margin: 10,
+                autoplay: true,
+                autoplayTimeout: 2000,
+                autoplayHoverPause: true
+            });
+        });
+        </script>
 </body>
 </html>
