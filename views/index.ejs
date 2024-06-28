@@ -12,7 +12,7 @@
 <body class="bg-gray-100 text-gray-800">
     <%- include('partials/header') %>
     <main class="container mx-auto py-8">
-        <% if (locals.user) { %>
+        <% if (locals.user && currentPage == 1) { %>
             <h2 class="text-2xl font-bold mb-4 px-8">For You</h2>
             <div class="owl-carousel owl-theme mb-16 px-16">
                 <% rec.forEach(item => { %>
@@ -72,6 +72,11 @@
     </main>
     <%- include('partials/footer') %>
     <script>
+        document.getElementById('pageSelect').addEventListener('change', function() {
+            window.location.href = '/page/' + this.value;
+        });
+    </script>
+    <script>
         const favoritesId = JSON.parse("<%- JSON.stringify(favoritesId) %>");
         document.querySelectorAll('.hover-heart').forEach(heartElement => {
             const id = Number(heartElement.id.replace('recipe-', ''));
@@ -89,15 +94,9 @@
         });
     </script>
     <script>
-        document.getElementById('pageSelect').addEventListener('change', function() {
-            window.location.href = '/page/' + this.value;
-        });
-    </script>
-    <script>
         document.querySelectorAll('.hover-heart').forEach(button => {
             console.log('button clicked');
         
-            // Define your event handler as a named function
             const eventHandler = function(event) {
                 event.preventDefault();
                 event.stopPropagation(); 
@@ -134,7 +133,6 @@
                 });
             }
         
-            // Remove the event listener before adding it
             button.removeEventListener('click', eventHandler);
             button.addEventListener('click', eventHandler);
         });

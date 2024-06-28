@@ -4,11 +4,24 @@ const sequelize = require('../config/database');
 const User = require('../models/user');
 const Favorite = require('../models/favorite');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const path = require('path');
 const saltRounds = 10;
 const app = express();
 const PORT = process.env.PORT || 4000;
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname)); 
+    }
+});
+
+const upload = multer({ storage: storage });
 
 app.use(bodyParser.json());
+app.use('/uploads', express.static('public/uploads'));
 
 app.post('/user_login', async (req, res) => {
     try {
@@ -76,6 +89,25 @@ app.post('/favorites', async (req, res) => {
     }
 });
 
+app.post('/update_profile', upload.single('profilePicture'), async (req, res) => {
+    const { userId, username, bio } = req.body;
+    try {
+        const updatedUser = await User.update({
+            username: username,
+            bio: bio,
+            profilePicture: req.file ? req.file.path : null // Use the file path if a file was uploaded
+        }, {
+            where: {
+                id: userId
+            }
+        });
+        res.json({ success: true, message: 'Profile updated successfully', user: updatedUser });
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        res.status(500).json({ error: 'Failed to update user profile' });
+    }
+});
+
 app.post('/user_favorites', async (req, res) => {
   try {
     const userId = req.body.userId;
@@ -91,6 +123,34 @@ app.post('/user_favorites', async (req, res) => {
     console.error('Error fetching favorites:', error);
     res.status(500).json({ error: 'Failed to retrieve favorites from database' });
   }
+});
+
+app.put('/update_user', async (req, res) => {
+    const { userId, username, email, bio } = req.body;
+    console.log(req.body);
+    try {
+        const updateData = Object.fromEntries(Object.entries({
+            username,
+            email,
+            bio
+        }).filter(([_, v]) => v !== undefined));
+        console.log(updateData);
+        const [updated] = await User.update(updateData, {
+            where: {
+                id: userId
+            }
+        });
+
+        if (updated) {
+            const updatedUser = await User.findOne({ where: { id: userId } });
+            res.json({ success: true, message: 'User updated successfully', user: updatedUser });
+        } else {
+            res.status(404).json({ error: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Failed to update user' });
+    }
 });
 
 sequelize

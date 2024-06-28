@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
+const multer = require('multer');
+const upload = multer();
 const { user_rec, recommend } = require('../services/recommendationService');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -25,12 +27,12 @@ app.use(session({
      maxAge: 12 * 60 * 60 * 1000,
    }
 }));
+
 app.use((req,res,next) => {
   res.locals.user = req.session.user;
   next();
 });
 
-// Create an axios instance for the user service
 const userService = axios.create({
   baseURL: 'http://localhost:4000',
 });
@@ -65,7 +67,7 @@ app.post('/user_register', async (req, res) => {
   try {
     const response = await userService.post('/user_register', req.body);
     req.session.user = response.data;
-    res.render('profile', { user: req.session.user});
+    res.render('login', { user: req.session.user});
   } catch (error) {
     if(error.response.status === 404){
       res.render('sign-up', { error: error.response.data.error, username: req.body.username, email: req.body.email});
@@ -182,7 +184,6 @@ app.get('/search', async (req, res) => {
     res.render('search', { data: response.data.results, query: query, favoritesId: favorites ? favorites.data : [] });
   }
   else {
-    //send json
     res.json(response.data.results);
   }
 });
@@ -228,7 +229,41 @@ app.get('/profile', async (req, res) => {
   res.render('profile',{favorites: favoriteRecipes.data, recommendations });
 });
 
+app.get('/edit_profile', async (req, res) =>  {
+  const user = req.session.user;
+  
+  res.render('edit_profile',{ user: user});
+} );
 
+app.post('/edit_profile', upload.none(), async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    console.log(req.body);
+    const response = await userService.put('/update_user', { ...req.body, userId });
+    console.log(response.data);
+    req.session.user = response.data.user;
+    const user = req.session.user;
+    let favorites;
+    if (req.session.user) {
+      favorites = await userService.post('/user_favorites', { userId: userId });
+    }
+
+    const favoriteRecipes = await api.get('/informationBulk', {
+      params: {
+       ids: favorites ? Array.from(new Set(favorites.data)).join(',') : '',
+      },
+    });
+
+    res.render('profile',{ user: user, favorites: favoriteRecipes.data });
+  } catch (error) {
+    if (error.response) {
+      res.status(500).send(error.response.data.error);
+    } else {
+      res.status(500).send(error.message);
+    }
+  }
+}
+);
 app.get('/login',(req,res)=>{
   res.render('login');
 });
@@ -240,6 +275,16 @@ app.get('/register',(req,res)=>{
 app.listen(3000);
 
 app.use(express.static('public'));
+
+
+
+
+
+
+
+
+
+
 
 
 
